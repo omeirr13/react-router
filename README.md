@@ -40,6 +40,37 @@ function App(){
 </nav>
 ```
 
+- replace property
+```
+<Link to="/" replace>Home</Link>
+```
+- it will replace/overwrite in the history, not add a new page, when we go back it will go back two pages, as it replaced the previous one, could be used when we we login to another page, when going back we dont want to go to previous page.
+
+- reloadDocument
+```
+<Link to="/" reloadDocument>Home</Link>
+```
+- normally react just changes content inside the route, but with that its going to reload the entire page
+
+
+# NavLink
+- works just like normal link, but allows us to do specific things with active state of a link
+- it has className, style, and children properties
+- these properties allow you to actually take in a function, and this function has isActive
+
+```
+<NavLink style={({ isActive }) => {
+  return isActive ? { color: "red } : {}
+}}
+```
+
+- if we dont want to do this, by default it will apply a class of active
+```
+.active {
+  color: red;
+}
+```
+
 
 ## Different types of routers:
 ### HashRouter
@@ -139,4 +170,102 @@ export const function BookLayout() {
 - we can come in the pages, that are rendered inside the layout
 ```const obj = useOutletContext()```
 
+
+### useRoutes
+- we dont have to set routes up using jsx like this, instead we can use a custom hook and set up everything using javascript.
+
+```
+let element = useRoutes([
+  {
+    path:"/",
+    element: <NavLayout />,
+    children: [
+      {
+        index: true,
+        element: <Home />
+      },
+      {
+        index: true,
+        element: <About />
+      },
+    ]
+  }
+])
+
+return (
+  {element}
+)
+```
+
+# Navigate component
+```
+<Navigate to="/home" />
+```
+
+- will automatically navigate, someone whenever we reach certain page, what happens if we dont want to navigate based on a component, oftem times we navigate based on form submissions
+
+# useNavigate hook
+```
+import navigate from "react-router-dom";
+const navigate = useNavigate();
+- Link, Navigate, useNavigate hook all take same thing..
+- to property, replace attribute, and custom state
+
+useEffect(()=>{
+  setTimeout(()=>{
+    navigate("/");
+  }, 1000);
+}, []);
+navigate("/");
+```
+
+- navigate(-num) will simulate hitting the backbutton num times.
+
+
+# Search Parameters
+## useSearchParams hook
+- search params/query params
+- it will get the query params in the url
+- localhost:3000/filter?age=23&citylahore
+```
+  const [searchParams,setSearchParams] = useSearchParams();
+  console.log(searchParams.get('age');
+```
+- setSearchParams will allow us to change the query params, and it will change live, will rerender each time i change it.
+
+# Navigation state
+- if in Link, NavLink, useNavigate, or Navigate Component we set the state, we can get that state using useLocation hook
+- useLocation gives us location object
+
+```
+const location = useLocation();
+```
+- pathname: everything coming after localhost:3000
+- search: anything in our search query
+- key: a unique value we can use anytime we need to cache things, related to a location, its just a unique id
+- hash: in url part that comes after the hash symbol, often called the fragment identifier, commonly used by browsers to navigate to specific places in a page, it does not effect routing
+- state: this is where we access state, its not stored anywhere except here
+
+
+# Private routes
+```
+
+import {  Navigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+
+export default function PrivateRoute({ children }) {
+  const { currentUser } = useAuth();
+
+  return currentUser ? children : <Navigate to="/login" />;
+}
+
+Then this for the dashboard element in your app.js: 
+<Route path="/"
+  element={
+    <PrivateRoute>
+      <Dashboard />
+    </PrivateRoute>
+  }
+></Route>
+```
 
